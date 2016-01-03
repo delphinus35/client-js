@@ -15,7 +15,9 @@ module.exports = function( grunt ) {
 			},
 			core: {
 				src: [
-					'js/*.js'
+					'js/*.js',
+					'!js/preprocess.js',
+					'!js/postprocess.js'
 				]
 			}
 		},
@@ -39,12 +41,14 @@ module.exports = function( grunt ) {
 		concat: {
 			js: {
 				src: [
+					'js/preprocess.js',
 					'js/app.js',
 					'js/utils.js',
 					'js/models.js',
 					'js/views.js',
 					'js/collections.js',
-					'js/load.js'
+					'js/load.js',
+					'js/postprocess.js'
 				],
 				dest: 'build/js/wp-api.js'
 			}
@@ -59,7 +63,11 @@ module.exports = function( grunt ) {
 			tasks: [ 'jshint', 'uglify:js', 'concat:js' ]
 		},
 		jscs: {
-			src: 'js/*.js',
+			src: [
+				'js/*.js',
+				'!js/preprocess.js',
+				'!js/postprocess.js'
+			],
 				options: {
 					config: '.jscsrc',
 					verbose: true,
