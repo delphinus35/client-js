@@ -27,3 +27,8 @@
 	}
 
 })(function(window, Backbone, _, $) {
+
+var wpApiSettings;
+if (typeof window.wpApiSettings === 'undefined') {
+	wpApiSettings = window.wpApiSettings = {};
+}
