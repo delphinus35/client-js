@@ -2,8 +2,7 @@
   "name": "wp-api",
   "version": "0.1.0",
   "scripts": {
-    "postinstall": "$(npm bin)/bower install && $(npm bin)/grunt",
-    "build": "grunt",
+    "build": "bower install && grunt",
     "test": "grunt test"
   },
   "main": "build/js/wp-api.js",
