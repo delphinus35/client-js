@@ -1,5 +1,5 @@
-/* global wpApiSettings */
-(function( window, undefined ) {
+/* global wpApiSettings, $ */
+(function( window, jQuery, undefined ) {
 
 	'use strict';
 
@@ -321,4 +321,4 @@
 		wp.api.endpoints.push( endpoint );
 	} );
 
-})( window );
+})( window, $ );
