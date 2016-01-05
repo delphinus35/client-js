@@ -1,0 +1,19 @@
+{
+  "name": "wp-rest-api-tsc-declare",
+  "version": "1.0.0",
+  "description": "Type definition files of WP-API",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "hinaloe/wp-rest-api-tsc-declare "
+  },
+  "keywords": [
+    "wp-api",
+    "typescript"
+  ],
+  "author": "hinaloe",
+  "license": "GPL-2.0"
+}

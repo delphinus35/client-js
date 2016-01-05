@@ -1,0 +1,192 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "user",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "Unique identifier for the object.",
+      "type": "integer",
+      "context": [
+        "embed",
+        "view",
+        "edit"
+      ],
+      "readonly": true
+    },
+    "username": {
+      "description": "Login name for the user.",
+      "type": "string",
+      "context": [
+        "edit"
+      ],
+      "required": true
+    },
+    "name": {
+      "description": "Display name for the object.",
+      "type": "string",
+      "context": [
+        "embed",
+        "view",
+        "edit"
+      ]
+    },
+    "first_name": {
+      "description": "First name for the object.",
+      "type": "string",
+      "context": [
+        "view",
+        "edit"
+      ]
+    },
+    "last_name": {
+      "description": "Last name for the object.",
+      "type": "string",
+      "context": [
+        "view",
+        "edit"
+      ]
+    },
+    "email": {
+      "description": "The email address for the object.",
+      "type": "string",
+      "format": "email",
+      "context": [
+        "view",
+        "edit"
+      ],
+      "required": true
+    },
+    "url": {
+      "description": "URL of the object.",
+      "type": "string",
+      "format": "uri",
+      "context": [
+        "embed",
+        "view",
+        "edit"
+      ],
+      "readonly": true
+    },
+    "description": {
+      "description": "Description of the object.",
+      "type": "string",
+      "context": [
+        "embed",
+        "view",
+        "edit"
+      ]
+    },
+    "link": {
+      "description": "Author URL to the object.",
+      "type": "string",
+      "format": "uri",
+      "context": [
+        "embed",
+        "view",
+        "edit"
+      ],
+      "readonly": true
+    },
+    "avatar_urls": {
+      "description": "Avatar URLs for the object.",
+      "type": "object",
+      "context": [
+        "embed",
+        "view",
+        "edit"
+      ],
+      "readonly": true,
+      "properties": {
+        "24": {
+          "description": "Avatar URL with image size of 24 pixels.",
+          "type": "uri",
+          "context": [
+            "embed",
+            "view",
+            "edit"
+          ]
+        },
+        "48": {
+          "description": "Avatar URL with image size of 48 pixels.",
+          "type": "uri",
+          "context": [
+            "embed",
+            "view",
+            "edit"
+          ]
+        },
+        "96": {
+          "description": "Avatar URL with image size of 96 pixels.",
+          "type": "uri",
+          "context": [
+            "embed",
+            "view",
+            "edit"
+          ]
+        }
+      }
+    },
+    "nickname": {
+      "description": "The nickname for the object.",
+      "type": "string",
+      "context": [
+        "view",
+        "edit"
+      ]
+    },
+    "slug": {
+      "description": "An alphanumeric identifier for the object unique to its type.",
+      "type": "string",
+      "context": [
+        "embed",
+        "view",
+        "edit"
+      ]
+    },
+    "registered_date": {
+      "description": "Registration date for the user.",
+      "type": "date-time",
+      "context": [
+        "view",
+        "edit"
+      ],
+      "readonly": true
+    },
+    "roles": {
+      "description": "Roles assigned to the user.",
+      "type": "array",
+      "context": [
+        "view",
+        "edit"
+      ],
+      "readonly": true
+    },
+    "role": {
+      "description": "Role assigned to the user.",
+      "type": "string",
+      "enum": [
+        "administrator",
+        "editor",
+        "author",
+        "contributor",
+        "subscriber"
+      ]
+    },
+    "capabilities": {
+      "description": "All capabilities assigned to the user.",
+      "type": "object",
+      "context": [
+        "view",
+        "edit"
+      ]
+    },
+    "extra_capabilities": {
+      "description": "Any extra capabilities assigned to the user.",
+      "type": "object",
+      "context": [
+        "edit"
+      ],
+      "readonly": true
+    }
+  }
+}
