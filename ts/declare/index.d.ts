@@ -318,31 +318,31 @@ declare module WP_API {
                 destroy(): boolean;
             }
         }
-    }
 
-    module collections {
+        module collections {
 
-        class BaseCollection<TModel extends WP_API.api.models.WPApiBaseModel> extends Backbone.Collection<TModel> { }
+            class BaseCollection<TModel extends WP_API.api.models.WPApiBaseModel> extends Backbone.Collection<TModel> { }
 
-        class Posts extends BaseCollection<WP_API.api.models.Post> { }
+            class Posts extends BaseCollection<WP_API.api.models.Post> { }
 
-        class Pages extends BaseCollection<WP_API.api.models.Page> { }
+            class Pages extends BaseCollection<WP_API.api.models.Page> { }
 
-        class Users extends BaseCollection<WP_API.api.models.User> { }
+            class Users extends BaseCollection<WP_API.api.models.User> { }
 
-        class PostStatuses extends BaseCollection<WP_API.api.models.PostStatus>{ }
+            class PostStatuses extends BaseCollection<WP_API.api.models.PostStatus>{ }
 
-        class MediaLibrary extends BaseCollection<WP_API.api.models.Media> { }
+            class MediaLibrary extends BaseCollection<WP_API.api.models.Media> { }
 
-        class Taxonomies extends BaseCollection<WP_API.api.models.Taxonomy> { }
+            class Taxonomies extends BaseCollection<WP_API.api.models.Taxonomy> { }
 
-        class Comments extends BaseCollection<WP_API.api.models.Comment>{ }
+            class Comments extends BaseCollection<WP_API.api.models.Comment>{ }
 
-        class PostTypes extends BaseCollection<WP_API.api.models.PostType> { }
+            class PostTypes extends BaseCollection<WP_API.api.models.PostType> { }
 
-        class Terms extends BaseCollection<WP_API.api.models.Term>{ }
+            class Terms extends BaseCollection<WP_API.api.models.Term>{ }
 
-        class Revisions extends BaseCollection<WP_API.api.models.PostRevision>{ }
+            class Revisions extends BaseCollection<WP_API.api.models.PostRevision>{ }
+        }
     }
 }
 
