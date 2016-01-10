@@ -9,67 +9,61 @@ This library provides an interface for the [WP REST API](https://github.com/WP-A
 
 Activate the WP-API plugin. Enqueue the script directly:
 
-```
+```php
 wp_enqueue_script( 'wp-api' );
 ```
 
 or as a dependency for your script:
 
-```
+```php
 wp_enqueue_script( 'my_script', 'path_to_my_script', array( 'wp-api' ) );
 ```
 
 The library parses the root endpoint (the 'Schema') and creates matching Backbone models and collections. You will now have two root objects available to you: `wp.api.models` and `wp-api.collections`.
 
 These objects contain the following:
+
 ```
 Models:
-  * Categories
-  * Comments
-  * Customposttype
-  * Media
-  * Pages
-  * PagesMeta
-  * PagesRevisions
-  * Posts
-  * PostsCategories
-  * PostsMeta
-  * PostsRevisions
-  * PostsTags
-  * Schema
-  * Statuses
-  * Tags
-  * Taxonomies
-  * Types
-  * Users
+ * Categories
+ * Comments
+ * Media
+ * Pages
+ * PagesMeta
+ * PagesRevisions
+ * Posts
+ * PostsCategories
+ * PostsMeta
+ * PostsRevisions
+ * PostsTags
+ * Schema
+ * Statuses
+ * Tags
+ * Taxonomies
+ * Types
+ * Users
 
 Collections:
-  * Categories
-  * Comments
-  * Customposttype
-  * Me // @note: should be model, see [issue](https://github.com/WP-API/client-js/issues/54)
-  * Media
-  * Meta
-  * Pages
-  * Posts
-  * Revisions
-  * Statuses
-  * Tags
-  * Taxonomies
-  * Types
-  * Users
+ * Categories
+ * Comments
+ * Customposttype
+ * Media
+ * Meta
+ * Pages
+ * Posts
+ * Revisions
+ * Statuses
+ * Tags
+ * Taxonomies
+ * Types
+ * Users
 ```
 
-You can use these endpoints to read, update, create and delete items using standard Backbone methods (fetch, sync, save & destroy for models, sync for collections). You should extend these objects to make them your own, and build your views on top of them.
+You can use these endpoints as is to read, update, create and delete items using standard Backbone methods (fetch, sync, save & destroy for models, sync for collections). You can also extend these objects to make them your own, and build your views on top of them.
 
-For example, to create a post, make sure you are logged in then:
+### Default values
 
-```
-var post = new wp.api.models.Posts( { title: 'This is a test post' } );
-post.save();
-```
-
-Each model and collection includes a reference to its default values, for example `wp.api.models.Posts` is:
+Each model and collection includes a reference to its default values, for example:
 
 ```
 wp.api.models.Posts.defaults
@@ -91,13 +85,17 @@ wp.api.models.Posts.defaults
  * title: null
 ```
 
+### Available methods
+
 Each model and collection contains a list of methods the corrosponding endpoint supports. For example, models created from `wp.api.models.Posts` have a method array of:
 
 ```
 ["GET", "POST", "PUT", "PATCH", "DELETE"]
 ```
 
-Each model and collection contains a list of options the corrosponding endpoint accepts (passed as a second parameter), for example `wp.api.collections.Posts.options`:
+### Accepted options
+
+Each model and collection contains a list of options the corrosponding endpoint accepts (passed as a second parameter), for example:
 
 ```
 wp.api.collections.Posts.options
@@ -111,6 +109,64 @@ wp.api.collections.Posts.options
  * search
  * status
 ```
+### Model examples:
+
+To create a post and edit its categories, make sure you are logged in, then:
+
+```
+// Create a new post
+var post = new wp.api.models.Posts( { title: 'This is a test post' } );
+post.save();
+
+// Create a new post
+var post = new wp.api.models.Posts({ title:'new test' } );
+post.save();
+
+// Get a collection of the post's categories (returns a promise)
+// Uses _embedded data if available, in which case promise resolves immediately.
+post.getCategories().done( function( postCategories ) {
+	// ... do something with the categories.
+	// The new post has an single Category: Uncategorized
+	postCategories.at( 0 ).get( 'name' );
+	// response -> "Uncategorized"
+} );
+
+// Get a posts author User model.
+post.getAuthorUser().done( function( user ){
+	// ... do something with user
+} );
+
+// Get a posts featured image Media model.
+post.getFeaturedImage().done( function( image ){
+	// ... do something with image
+} );
+
+// Set the post categories.
+post.setCategories( [ 'apples', 'oranges' ] );
+
+// Get all the categories
+var allCategories = new wp.api.collections.Categories()
+allCategories.fetch();
+
+var appleCategory = allCategories.findWhere( { slug: 'apples' } );
+
+// Add the category to the postCategories collection we previously fetched.
+appleCategory.set( 'parent_post', post.get( 'id' ) );
+
+// Use the POST method so Backbone will not PUT it even though it has an id.
+postCategories.create( appleCategory.toJSON(), { type: 'POST' } );
+
+// Remove the Uncategorized category
+postCategories.at( 0 ).destroy();
+
+// Check the results - refectch
+postCategories = post.getCategories();
+
+postCategories.at( 0 ).get('name');
+// response -> "apples"
+```
+
+### Collection examples:
 
 to get the last 10 posts:
 
@@ -122,8 +178,13 @@ postsCollection.fetch();
 to get the last 25 posts:
 
 ```
-var postsCollection = new wp.api.collections.Posts( {}. { per_page: '25' } );
-postsCollection.fetch();
+postsCollection.fetch( { data: { per_page: 25 } } );
+```
+
+use filter to change the order & orderby options:
+
+```
+postsCollection.fetch( { data: { 'filter': { 'orderby': 'title', 'order': 'ASC' } } } );
 ```
 
 All collections support pagination automatically, and you can get the next page of results using `more`:
