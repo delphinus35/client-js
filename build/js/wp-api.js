@@ -27,10 +27,10 @@
 
 })(function(window, wp, _, $, Backbone) {
 
-var wpApiSettings;
 if (typeof window.wpApiSettings === 'undefined') {
-	wpApiSettings = window.wpApiSettings = {};
+	window.wpApiSettings = {};
 }
+var wpApiSettings = window.wpApiSettings;
 
 (function( window, wp, undefined ) {
 
@@ -442,7 +442,7 @@ if (typeof window.wpApiSettings === 'undefined') {
 })( wp, wpApiSettings, Backbone, _, window );
 
 /* global wpApiSettings, $ */
-(function( window, jQuery, undefined ) {
+(function( window, jQuery, wpApiSettings, undefined ) {
 
 	'use strict';
 
@@ -1228,7 +1228,7 @@ if (typeof window.wpApiSettings === 'undefined') {
 	// The wp.api.init function returns a promise that will resolve with the endpoint once it is ready.
 	wp.api.init();
 
-})( window, $ );
+})( window, $, wpApiSettings );
 
 return window.wp;
 });
