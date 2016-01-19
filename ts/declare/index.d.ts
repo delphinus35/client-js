@@ -249,7 +249,11 @@ declare module WPApi {
 
 declare module WP_API {
 
-    class Hoge {
+    interface CollectionState {
+        data: {[key: string]: string};
+        currentPage: number;
+        totalPages: number;
+        totalObjects: number;
     }
 
     module api {
@@ -321,7 +325,12 @@ declare module WP_API {
 
         module collections {
 
-            class BaseCollection<TModel extends WP_API.api.models.WPApiBaseModel> extends Backbone.Collection<TModel> { }
+            class BaseCollection<TModel extends WP_API.api.models.WPApiBaseModel> extends Backbone.Collection<TModel> {
+                state: CollectionState;
+                sync(method: string, model: Backbone.Model, options?: JQueryAjaxSettings): any;
+                more(options?: JQueryAjaxSettings): JQueryPromise<{}>;
+                hasMore(): boolean;
+            }
 
             class Posts extends BaseCollection<WP_API.api.models.Post> { }
 
