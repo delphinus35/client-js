@@ -4,19 +4,106 @@
 
 declare module WPApi {
 
+    interface Item {
+        author?: number;
+        comment_status?: string;
+        content?: Renderable;
+        date?: Date;
+        date_gmt?: Date;
+        parent?: string;
+        password?: string;
+        ping_status?: string;
+        slug?: string;
+        status?: string;
+        title?: string;
+    }
+
+    interface Context {
+        default: string;
+        description: string;
+        enum: string[];
+        required: boolean;
+    }
+
+    interface Category {
+        description?: string;
+        name?: string;
+        parent?: string;
+        slug?: string;
+    }
+
     interface Comment {
         author?: number;
         author_email?: string;
         author_name?: string;
         author_url?: string;
         content?: string;
-        date?: any;
-        date_gmt?: any;
+        date?: Date;
+        date_gmt?: Date;
         karma?: number;
         parent?: number;
         post?: number;
         status?: string;
         type?: string;
+    }
+
+    interface Media extends Item {
+        alt_text: string;
+        caption: string;
+        description: string;
+        post: number;
+    }
+
+    interface Options {
+        context: Context;
+    }
+
+    interface Page extends Item {
+        excerpt?: Renderable;
+        featured_media?: number;
+        menu_order?: number;
+        template?: string;
+    }
+
+    interface PageMeta {
+        key?: string;
+        value?: string;
+    }
+
+    interface Post extends Item {
+        categories: Category[];
+        excerpt?: Renderable;
+        featured_media?: number;
+        format?: string;
+        sticky?: boolean;
+        tags?: Tag[];
+    }
+
+    interface PostsMeta extends PageMeta { }
+
+    interface Schema {
+        _links: Backbone.ObjectHash;
+        namespace?: string;
+        routes: Backbone.ObjectHash;
+    }
+
+    interface Tag {
+        description?: string;
+        name?: string;
+        slug?: string;
+    }
+
+    interface User {
+        capabilities?: any;
+        description?: string;
+        email?: string;
+        first_name?: string;
+        last_name?: string;
+        name?: string;
+        nickname?: string;
+        role?: string;
+        slug?: string;
+        username?: string;
     }
 
     interface CommentResponse extends Comment {
@@ -38,22 +125,6 @@ declare module WPApi {
         96: string;
     }
 
-    interface Item {
-        date?: any;
-        date_gmt?: any;
-        modified?: any;
-        modified_gmt?: any;
-        password?: string;
-        slug?: string;
-        status?: string;
-        content?: Renderable;
-        author?: number;
-        excerpt?: Renderable;
-        featured_image?: number;
-        comment_status?: string;
-        ping_status?: string;
-    }
-
     /**
      * ReadOnly
      */
@@ -64,22 +135,10 @@ declare module WPApi {
         type?: string;
     }
 
-    interface Media extends Item {
-        alt_text: string;
-        caption: string;
-        description: string;
-        post: number;
-    }
-
     interface MediaResponse extends Media, ItemResponse {
         media_type: string;
         media_details: any;
         source_url: string;
-    }
-
-    interface Page extends Item {
-        menu_order?: number;
-        template?: string;
     }
 
     interface PageResponse extends Page, ItemResponse { }
@@ -123,11 +182,6 @@ declare module WPApi {
         slug?: string;
         /**@readonly */
         taxnonomy?:string;
-    }
-
-    interface Post extends Item {
-        format?: string;
-        sticky?: boolean;
     }
 
     interface PostResponse extends Post,ItemResponse { }
@@ -214,19 +268,6 @@ declare module WPApi {
         name_admin_bar?: string;
     }
 
-    interface User {
-        name?: string;
-        username?: string;
-        first_name?: string;
-        last_name?: string;
-        email?: string;
-        description?: string;
-        nickname?: string;
-        slug?: string;
-        role?: string;
-        capabilities: any;
-    }
-
     /**
      * User Response
      */
@@ -267,59 +308,81 @@ declare module WP_API {
         module models {
 
             class WPApiBaseModel extends Backbone.Model {
-                sync(method: string, model: Backbone.Model, options: any): any;
-                urlRoot: string;
             }
 
-            class User extends WPApiBaseModel {
-                defaults(): () => WPApi.User;//??
-            }
-
-            class Taxonomy extends WPApiBaseModel {
-                defaults(): () => WPApi.Taxonomy;
-            }
-
-            class Term extends WPApiBaseModel {
-                defaults(): () => WPApi.Term;
-            }
-
-            class Post extends WPApiBaseModel {
-                defaults(): () => WPApi.Post;
-            }
-
-            class Page extends WPApiBaseModel {
-                defaults(): () => WPApi.Page;
-            }
-
-            class PostRevision extends WPApiBaseModel {
-                defaults(): () => WPApi.PostRevisions;
-                url: () => string
-            }
-
-            class Media extends WPApiBaseModel {
-                defaults(): () => WPApi.Media;
+            class Category extends WPApiBaseModel {
+                defaults(): () => WPApi.Category;
+                options: WPApi.Options;
             }
 
             class Comment extends WPApiBaseModel {
                 defaults(): () => WPApi.Comment;
+                options: WPApi.Options;
             }
 
-            class PostType extends WPApiBaseModel {
-                defaults(): () => WPApi.Type;
-                save(): boolean;
-                destroy(): boolean;
+            class Media extends WPApiBaseModel {
+                defaults(): () => WPApi.Media;
+                options: WPApi.Options;
             }
 
-            class PostStatus extends WPApiBaseModel {
-                defaults(): () => PostStatus;
-                save(): boolean;
-                destroy(): boolean;
+            class Page extends WPApiBaseModel {
+                defaults(): () => WPApi.Page;
+                options: WPApi.Options;
+            }
+
+            class PageMeta extends WPApiBaseModel {
+                defaults(): () => WPApi.PageMeta;
+                options: WPApi.Options;
+            }
+
+            class PageRevision extends WPApiBaseModel {
+                options: WPApi.Options;
+            }
+
+            class Post extends WPApiBaseModel {
+                defaults(): () => WPApi.Post;
+                options: WPApi.Options;
+            }
+
+            class PostRevision extends WPApiBaseModel {
+                defaults(): () => WPApi.PostRevisions;
+                options: WPApi.Options;
+            }
+
+            class PostsMeta extends WPApiBaseModel {
+                defaults(): () => WPApi.PostsMeta;
+                options: WPApi.Options;
             }
 
             class Schema extends WPApiBaseModel {
-                defaults(): () => any;
-                save(): boolean;
-                destroy(): boolean;
+                defaults(): () => WPApi.Schema;
+                apiRoot: string;
+                versionString: string;
+                options: WPApi.Options;
+            }
+
+            class Status extends WPApiBaseModel {
+                options: WPApi.Options;
+            }
+
+            class Tag extends WPApiBaseModel {
+                defaults(): () => WPApi.Tag;
+                options: WPApi.Options;
+            }
+
+            class Taxonomy extends WPApiBaseModel {
+                defaults(): () => WPApi.Taxonomy;
+                options: WPApi.Options;
+            }
+
+            class Type extends WPApiBaseModel {
+                defaults(): () => WPApi.Type;
+                options: WPApi.Options;
+            }
+
+            class User extends WPApiBaseModel {
+                defaults(): () => WPApi.User;
+                options: WPApi.Options;
             }
         }
 
@@ -332,25 +395,35 @@ declare module WP_API {
                 hasMore(): boolean;
             }
 
-            class Posts extends BaseCollection<WP_API.api.models.Post> { }
-
-            class Pages extends BaseCollection<WP_API.api.models.Page> { }
-
-            class Users extends BaseCollection<WP_API.api.models.User> { }
-
-            class PostStatuses extends BaseCollection<WP_API.api.models.PostStatus>{ }
-
-            class MediaLibrary extends BaseCollection<WP_API.api.models.Media> { }
-
-            class Taxonomies extends BaseCollection<WP_API.api.models.Taxonomy> { }
+            class Categories extends BaseCollection<WP_API.api.models.Category>{ }
 
             class Comments extends BaseCollection<WP_API.api.models.Comment>{ }
 
-            class PostTypes extends BaseCollection<WP_API.api.models.PostType> { }
+            class Media extends BaseCollection<WP_API.api.models.Media> { }
 
-            class Terms extends BaseCollection<WP_API.api.models.Term>{ }
+            class PageMeta extends BaseCollection<WP_API.api.models.PageMeta> { }
 
-            class Revisions extends BaseCollection<WP_API.api.models.PostRevision>{ }
+            class PageRevision extends BaseCollection<WP_API.api.models.PageRevision> { }
+
+            class Pages extends BaseCollection<WP_API.api.models.Page> { }
+
+            class PostMeta extends BaseCollection<WP_API.api.models.PostsMeta>{ }
+
+            class PostRevisions extends BaseCollection<WP_API.api.models.PageRevision>{ }
+
+            class Posts extends BaseCollection<WP_API.api.models.Post> { }
+
+            class Statuses extends BaseCollection<WP_API.api.models.Status>{ }
+
+            class Tags extends BaseCollection<WP_API.api.models.Tag> { }
+
+            class Taxonomies extends BaseCollection<WP_API.api.models.Taxonomy> { }
+
+            class Types extends BaseCollection<WP_API.api.models.Type> { }
+
+            class Users extends BaseCollection<WP_API.api.models.User> { }
+
+            class V2 extends BaseCollection<Backbone.Model> { }
         }
     }
 }
