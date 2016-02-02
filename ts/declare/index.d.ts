@@ -391,7 +391,7 @@ declare module WP_API {
             class BaseCollection<TModel extends WP_API.api.models.WPApiBaseModel> extends Backbone.Collection<TModel> {
                 state: CollectionState;
                 sync(method: string, model: Backbone.Model, options?: JQueryAjaxSettings): any;
-                more(options?: JQueryAjaxSettings): JQueryPromise<{}>;
+                more(options?: Backbone.CollectionFetchOptions): JQueryPromise<{}>;
                 hasMore(): boolean;
             }
 
