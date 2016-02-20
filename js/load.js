@@ -4,9 +4,12 @@
 	'use strict';
 
 	var Endpoint, initializedDeferreds = {};
-
 	window.wp = window.wp || {};
-	wp.api = wp.api || {};
+	wp.api    = wp.api || {};
+
+	if ( _.isEmpty( wpApiSettings ) ) {
+		wpApiSettings.root = window.location.origin + '/wp-json/';
+	}
 
 	Endpoint = Backbone.Model.extend({
 		defaults: {
@@ -132,19 +135,14 @@
 						index !== schemaRoot &&
 						index !== ( '/' + routeModel.get( 'versionString' ).slice( 0, -1 ) )
 				) {
-					/**
-					 * Single item models end with a regex/variable.
-					 *
-					 * @todo make model/collection logic more robust.
-					 */
-					if ( index.endsWith( '+)' ) ) {
+
+					// Single items end with a regex (or the special case 'me').
+					if ( /.*[+)|me]$/.test( index ) ) {
 						modelRoutes.push( { index: index, route: route } );
 					} else {
 
 						// Collections end in a name.
-						if ( ! index.endsWith( 'me' ) ) {
-							collectionRoutes.push( { index: index, route: route } );
-						}
+						collectionRoutes.push( { index: index, route: route } );
 					}
 				}
 			} );
@@ -159,7 +157,13 @@
 				// Extract the name and any parent from the route.
 				var modelClassName,
 						routeName  = wp.api.utils.extractRoutePart( modelRoute.index, 2 ),
-						parentName = wp.api.utils.extractRoutePart( modelRoute.index, 4 );
+						parentName = wp.api.utils.extractRoutePart( modelRoute.index, 4 ),
+						routeEnd   = wp.api.utils.extractRoutePart( modelRoute.index, 1 );
+
+				// Handle the special case of the 'me' route.
+				if ( 'me' === routeEnd ) {
+					routeName = 'me';
+				}
 
 				// If the model has a parent in its route, add that to its class name.
 				if ( '' !== parentName && parentName !== routeName ) {
@@ -215,7 +219,10 @@
 
 						// Function that returns a constructed url based on the id.
 						url: function() {
-							var url = routeModel.get( 'apiRoot' ) + routeModel.get( 'versionString' ) + routeName;
+							var url = routeModel.get( 'apiRoot' ) +
+								routeModel.get( 'versionString' ) +
+								( ( 'me' === routeName ) ? 'users/me' : routeName );
+
 							if ( ! _.isUndefined( this.get( 'id' ) ) ) {
 								url +=  '/' + this.get( 'id' );
 							}
@@ -234,7 +241,7 @@
 				}
 
 				// Add defaults to the new model, pulled form the endpoint
-				wp.api.decorateFromRoute( modelRoute.route.endpoints, loadingObjects.models[ modelClassName ] );
+				wp.api.utils.decorateFromRoute( modelRoute.route.endpoints, loadingObjects.models[ modelClassName ] );
 
 			} );
 
@@ -303,12 +310,12 @@
 				}
 
 				// Add defaults to the new model, pulled form the endpoint
-				wp.api.decorateFromRoute( collectionRoute.route.endpoints, loadingObjects.collections[ collectionClassName ] );
+				wp.api.utils.decorateFromRoute( collectionRoute.route.endpoints, loadingObjects.collections[ collectionClassName ] );
 			} );
 
 			// Add mixins and helpers for each of the models.
 			_.each( loadingObjects.models, function( model, index ) {
-				loadingObjects.models[ index ] = wp.api.addMixinsAndHelpers( model, index, loadingObjects );
+				loadingObjects.models[ index ] = wp.api.utils.addMixinsAndHelpers( model, index, loadingObjects );
 			} );
 
 		}
@@ -441,12 +448,12 @@
 			CategoriesMixin = {
 
 				/**
-				 * Get a PostCategories model for an model's categories.
+				 * Get a PostsCategories model for an model's categories.
 				 *
 				 * Uses the embedded data if available, otherwises fetches the
 				 * data from the server.
 				 *
-				 * @return {Deferred.promise} promise Resolves to a wp.api.collections.PostCategories collection containing the post categories.
+				 * @return {Deferred.promise} promise Resolves to a wp.api.collections.PostsCategories collection containing the post categories.
 				 */
 				getCategories: function() {
 					var postId, embeddeds, categories,
@@ -473,7 +480,7 @@
 					}
 
 					// Create the new categories collection.
-					categories = new wp.api.collections.PostCategories( properties, classProperties );
+					categories = new wp.api.collections.PostsCategories( properties, classProperties );
 
 					// If we didn’t have embedded categories, fetch the categories data.
 					if ( _.isUndefined( categories.models[0] ) ) {
@@ -486,7 +493,7 @@
 						deferred.resolve( categories );
 					}
 
-					// Return a promise.
+					// Return the constructed categories promise.
 					return deferred.promise();
 				},
 
@@ -504,7 +511,7 @@
 				/**
 				 * Set the categories for a post.
 				 *
-				 * Accepts an array of category slugs, or a PostCategories collection.
+				 * Accepts an array of category slugs, or a PostsCategories collection.
 				 *
 				 * @param {array|Backbone.Collection} categories The categories to set on the post.
 				 *
@@ -524,7 +531,7 @@
 
 								// Find the passed categories and set them up.
 								_.each( categories, function( category ) {
-									newCategory = new wp.api.models.PostCategories( allcats.findWhere( { slug: category } ) );
+									newCategory = new wp.api.models.PostsCategories( allcats.findWhere( { slug: category } ) );
 
 									// Tie the new category to the post.
 									newCategory.set( 'parent_post', self.get( 'id' ) );
@@ -532,7 +539,7 @@
 									// Add the new category to the collection.
 									newCategories.push( newCategory );
 								} );
-								categories = new wp.api.collections.PostCategories( newCategories );
+								categories = new wp.api.collections.PostsCategories( newCategories );
 								self.setCategoriesWithCollection( categories );
 							}
 						} );
@@ -546,7 +553,7 @@
 				/**
 				 * Set the categories for a post.
 				 *
-				 * Accepts PostCategories collection.
+				 * Accepts PostsCategories collection.
 				 *
 				 * @param {array|Backbone.Collection} categories The categories to set on the post.
 				 *
@@ -591,12 +598,11 @@
 				 * Uses the embedded user data if available, otherwises fetches the user
 				 * data from the server.
 				 *
-				 * @return {Object} user A wp.api.models.User model representing the author user.
+				 * @return {Object} user A wp.api.models.Users model representing the author user.
 				 */
 				getAuthorUser: function() {
-					var user, authorId, embeddeds, attributes, deferred;
+					var user, authorId, embeddeds, attributes;
 
-					deferred  = jQuery.Deferred();
 					authorId  = this.get( 'author' );
 					embeddeds = this.get( '_embedded' ) || {};
 
@@ -616,19 +622,15 @@
 					}
 
 					// Create the new user model.
-					user = new wp.api.models.User( attributes );
+					user = new wp.api.models.Users( attributes );
 
 					// If we didn’t have an embedded user, fetch the user data.
 					if ( ! user.get( 'name' ) ) {
-						user.fetch( { success: function( user ) {
-							deferred.resolve( user );
-						} } );
-					} else {
-						deferred.resolve( user );
+						user.fetch();
 					}
 
-					// Return a promise.
-					return deferred.promise();
+					// Return the constructed user.
+					return user;
 				}
 			},
 
@@ -646,9 +648,8 @@
 				 * @return {Object} media A wp.api.models.Media model representing the featured image.
 				 */
 				getFeaturedImage: function() {
-					var media, featuredImageId, embeddeds, attributes, deferred;
+					var media, featuredImageId, embeddeds, attributes;
 
-					deferred         = jQuery.Deferred();
 					featuredImageId  = this.get( 'featured_image' );
 					embeddeds        = this.get( '_embedded' ) || {};
 
@@ -672,15 +673,11 @@
 
 					// If we didn’t have an embedded media, fetch the media data.
 					if ( ! media.get( 'source_url' ) ) {
-						media.fetch( { success: function( media ) {
-							deferred.resolve( media );
-						} } );
-					} else {
-						deferred.resolve( media );
+						media.fetch();
 					}
 
-					// Return a promise.
-					return deferred.promise();
+					// Return the constructed media.
+					return media;
 				}
 			};
 
@@ -790,6 +787,6 @@
 	 */
 
 	// The wp.api.init function returns a promise that will resolve with the endpoint once it is ready.
-	wp.api.init();
+	wp.api.loadPromise = wp.api.init();
 
 })( window, $, wpApiSettings );

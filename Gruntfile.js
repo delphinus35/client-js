@@ -28,7 +28,11 @@ module.exports = function( grunt ) {
 				},
 				files: {
 					'build/js/wp-api.min.js': [
-						'build/js/wp-api.js'
+						'js/app.js',
+						'js/utils.js',
+						'js/models.js',
+						'js/collections.js',
+						'js/load.js'
 					]
 				}
 			}
@@ -40,7 +44,6 @@ module.exports = function( grunt ) {
 					'js/app.js',
 					'js/utils.js',
 					'js/models.js',
-					'js/views.js',
 					'js/collections.js',
 					'js/load.js',
 					'js/postprocess.js'
@@ -49,7 +52,11 @@ module.exports = function( grunt ) {
 			}
 		},
 		qunit: {
-			all: [ 'tests/*.html' ]
+			all: {
+				options: {
+					urls: [ 'http://wpdev.localhost:80/wp-content/plugins/client-js/tests/tests.html' ]
+				}
+			}
 		},
 		watch: {
 			files: [

@@ -1,7 +1,8 @@
-/* global wpApiSettings:false */
-(function( wp, wpApiSettings, Backbone, _, window, undefined ) {
+( function() {
 
 	'use strict';
+
+	var wpApiSettings = window.wpApiSettings || {};
 
 	/**
 	 * Contains basic collection functionality such as pagination.
@@ -73,8 +74,10 @@
 
 					success = options.success;
 					options.success = function( data, textStatus, request ) {
-						self.state.totalPages = parseInt( request.getResponseHeader( 'x-wp-totalpages' ), 10 );
-						self.state.totalObjects = parseInt( request.getResponseHeader( 'x-wp-total' ), 10 );
+						if ( ! _.isUndefined( request ) ) {
+							self.state.totalPages = parseInt( request.getResponseHeader( 'x-wp-totalpages' ), 10 );
+							self.state.totalObjects = parseInt( request.getResponseHeader( 'x-wp-total' ), 10 );
+						}
 
 						if ( null === self.state.currentPage ) {
 							self.state.currentPage = 1;
@@ -135,4 +138,4 @@
 		}
 	);
 
-})( wp, wpApiSettings, Backbone, _, window );
+} )();
