@@ -300,6 +300,7 @@ declare module WP_API {
     module api {
 
         var views: any;
+        var loadPromise: JQueryPromise<{}>;
 
         module utils {
             function parseISO8601(d: Date): number;
